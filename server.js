@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const bcrypt  = require('bcrypt');
 
 const app = express();
 
@@ -39,8 +40,17 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
+
+  isValidPass = bcrypt.compare(req.body.password, dataBase.users[0].pass, function(err, res) {
+    if (err) {
+      return err;
+    }
+    return res;
+  });
+
   if (req.body.email === dataBase.users[0].email &&
-      req.body.password === dataBase.users[0].password) {
+      // req.body.password === dataBase.users[0].password
+      isValidPass) {
         res.json('success');
       } else {
         res.status(400).json('error logging in');
@@ -48,14 +58,24 @@ app.post('/signin', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
-  const { id, name, email, password, entries } = req.body;
+  const { id=127, name, email, password } = req.body;
+
+  const pass = bcrypt.hash(password, saltRounds=10, function(err, hash) {
+    // Store hash in your password DB.
+    if (err) {
+      return err;
+    }
+    return hash;
+  });
+  console.log(pass);
+
   dataBase.users.push(
     {
       id: id,
       name: name, 
       email: email, 
-      password: password, 
-      entries: entries,
+      password: pass, 
+      entries: 0,
       joined: new Date()});
   res.json(dataBase.users[dataBase.users.length-1]);
 });

@@ -8,7 +8,7 @@ app.use(bodyParser.json());
 const dataBase = {
   users: [
     {
-      id: 123,
+      id: "123",
       name: 'john',
       email: 'john@gmail.com',
       password: 'cookies',
@@ -16,7 +16,7 @@ const dataBase = {
       joined: new Date()
     },
     {
-      id: 124,
+      id: "124",
       name: 'sally',
       email: 'sally@gmail.com',
       password: 'bananas',
@@ -24,7 +24,7 @@ const dataBase = {
       joined: new Date()
     },
     {
-      id: 125,
+      id: "125",
       name: 'bob',
       email: 'bob@gmail.com',
       password: 'cherry',
@@ -58,6 +58,17 @@ app.post('/register', (req, res) => {
       entries: entries,
       joined: new Date()});
   res.json(dataBase.users[dataBase.users.length-1]);
+});
+
+app.get('/profile/:id', (req, res) => {
+  console.log(req.params);
+  const { id } = req.params;
+  const user = dataBase.users.find( user => user.id === id );
+  if (user === undefined) {
+    res.status(400).json('user not found');
+  }
+  res.json(user); 
+  
 });
 
 app.listen(3000, () => {

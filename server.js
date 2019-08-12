@@ -1,9 +1,11 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt  = require('bcrypt');
+const cors = require('cors');
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.json());
 
 const dataBase = {
@@ -60,21 +62,20 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
   const { id=127, name, email, password } = req.body;
 
-  const pass = bcrypt.hash(password, saltRounds=10, function(err, hash) {
-    // Store hash in your password DB.
-    if (err) {
-      return err;
-    }
-    return hash;
-  });
-  console.log(pass);
+  const storeUserPassword = (password, salt) =>  
+    bcrypt.hash(password, salt).then(storeHashInDatabase);
+  
+    const storeHashInDatabase = (hash) => {  
+    // Store the hash in your password DB
+    return hash; // For now we are returning the hash for testing at the bottom
+  };
 
   dataBase.users.push(
     {
       id: id,
       name: name, 
       email: email, 
-      password: pass, 
+      password: storeUserPassword(password, 10), 
       entries: 0,
       joined: new Date()});
   res.json(dataBase.users[dataBase.users.length-1]);

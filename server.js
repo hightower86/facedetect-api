@@ -19,7 +19,7 @@ const db = knex({
   }
 });
 
-console.log(db.select('*').from('users'));
+//console.log(db.select('*').from('users'));
 
 const dataBase = {
   users: [{
@@ -73,6 +73,7 @@ app.post('/signin', (req, res) => {
 });
 
 app.post('/register', (req, res) => {
+
   const {
     id = 127, name, email, password
   } = req.body;
@@ -85,14 +86,26 @@ app.post('/register', (req, res) => {
     return hash; // For now we are returning the hash for testing at the bottom
   };
 
-  dataBase.users.push({
-    id: id,
+  // dataBase.users.push({
+  //   id: id,
+  //   name: name,
+  //   email: email,
+  //   password: storeUserPassword(password, 10),
+  //   entries: 0,
+  //   joined: new Date()
+  // });
+
+  db('users').insert({
     name: name,
     email: email,
-    password: storeUserPassword(password, 10),
-    entries: 0,
     joined: new Date()
-  });
+  }).then(console.log());
+
+  db('login').insert({
+    email: email,
+    hash: storeUserPassword(password, 10)
+  }).then(console.log());
+
   res.json(dataBase.users[dataBase.users.length - 1]);
 });
 

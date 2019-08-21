@@ -75,7 +75,9 @@ app.post('/signin', (req, res) => {
 app.post('/register', (req, res) => {
 
   const {
-    id = 127, name, email, password
+    name,
+    email,
+    password
   } = req.body;
 
   const storeUserPassword = (password, salt) =>
@@ -95,18 +97,22 @@ app.post('/register', (req, res) => {
   //   joined: new Date()
   // });
 
-  db('users').insert({
-    name: name,
-    email: email,
-    joined: new Date()
-  }).then(console.log());
+  db('users')
+    .returning('*')
+    .insert({
+      name: name,
+      email: email,
+      joined: new Date()
+    })
+    .then(user => res.json(user[0]))
+    .catch(err => res.status(400).json('unable to register'));
 
-  db('login').insert({
-    email: email,
-    hash: storeUserPassword(password, 10)
-  }).then(console.log());
+  // db('login').insert({
+  //   email: email,
+  //   hash: storeUserPassword(password, 10)
+  // }).then(console.log());
 
-  res.json(dataBase.users[dataBase.users.length - 1]);
+  //res.json(dataBase.users[dataBase.users.length - 1]);
 });
 
 app.get('/profile/:id', (req, res) => {

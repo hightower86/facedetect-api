@@ -116,16 +116,22 @@ app.post('/register', (req, res) => {
 });
 
 app.get('/profile/:id', (req, res) => {
-  console.log(req.params);
+
   const {
     id
   } = req.params;
-  const user = dataBase.users.find(user => user.id === id);
-  if (user === undefined) {
-    res.status(400).json('user not found');
-  }
-  res.json(user);
 
+  db.select('*').from('users').where({
+      id: id
+    })
+    .then(user => {
+      if (user.length) {
+        res.json(user[0]);
+      } else {
+        res.status(400).json('user not exist');
+      }
+    })
+    .catch(err => res.status(400).json('bad request'));
 });
 
 app.put('/image', (req, res) => {

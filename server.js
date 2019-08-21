@@ -2,11 +2,24 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cors = require('cors');
+const knex = require('knex');
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
+
+const db = knex({
+  client: 'pg',
+  connection: {
+    host: '127.0.0.1',
+    user: 'macbook',
+    password: '',
+    database: 'smart-brain'
+  }
+});
+
+console.log(db.select('*').from('users'));
 
 const dataBase = {
   users: [{
@@ -41,7 +54,7 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
-
+  console.log(req.body.email, req.body.password);
   isValidPass = bcrypt.compare(req.body.password, dataBase.users[0].pass, function (err, res) {
     if (err) {
       return err;
@@ -53,7 +66,7 @@ app.post('/signin', (req, res) => {
     req.body.password === dataBase.users[0].password
     //isValidPass
   ) {
-    res.json(database.users[0]);
+    res.json(dataBase.users[0]);
   } else {
     res.status(400).json('error logging in');
   }

@@ -80,39 +80,31 @@ app.post('/register', (req, res) => {
     password
   } = req.body;
 
-  const storeUserPassword = (password, salt) =>
-    bcrypt.hash(password, salt).then(storeHashInDatabase);
+  const hash = bcrypt.hashSync(password, 10);
 
-  const storeHashInDatabase = (hash) => {
-    // Store the hash in your password DB
-    return hash; // For now we are returning the hash for testing at the bottom
-  };
-
-  // dataBase.users.push({
-  //   id: id,
-  //   name: name,
-  //   email: email,
-  //   password: storeUserPassword(password, 10),
-  //   entries: 0,
-  //   joined: new Date()
-  // });
-
-  db('users')
-    .returning('*')
-    .insert({
-      name: name,
-      email: email,
-      joined: new Date()
+  db.transaction(trx => {
+      trx.insert({
+          hash: hash,
+          email: email
+        })
+        .into('login')
+        .returning('email')
+        .then(loginEmail => {
+          return trx('users')
+            .returning('*')
+            .insert({
+              name: name,
+              email: loginEmail[0],
+              joined: new Date()
+            })
+            .then(user => {
+              res.json(user[0]);
+            });
+        })
+        .then(trx.commit)
+        .catch(trx.rollback);
     })
-    .then(user => res.json(user[0]))
     .catch(err => res.status(400).json('unable to register'));
-
-  // db('login').insert({
-  //   email: email,
-  //   hash: storeUserPassword(password, 10)
-  // }).then(console.log());
-
-  //res.json(dataBase.users[dataBase.users.length - 1]);
 });
 
 app.get('/profile/:id', (req, res) => {
@@ -138,13 +130,12 @@ app.put('/image', (req, res) => {
   const {
     id
   } = req.body;
-  const user = dataBase.users.find(user => user.id === id);
 
-  if (user === undefined) {
-    res.status(400).json('user not found');
-  }
-  user.entries++;
-  res.json(user.entries);
+  db('users').where('id', '=', id).increment('entries', 1)
+    .returning('entries')
+    .then(entries => res.json(entries))
+    .catch(err => res.status(400).json('unable get entries'));
+
 });
 
 app.listen(3000, () => {

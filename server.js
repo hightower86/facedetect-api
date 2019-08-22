@@ -19,8 +19,6 @@ const db = knex({
   }
 });
 
-//console.log(db.select('*').from('users'));
-
 const dataBase = {
   users: [{
       id: "123",
@@ -54,22 +52,22 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signin', (req, res) => {
-  console.log(req.body.email, req.body.password);
-  isValidPass = bcrypt.compare(req.body.password, dataBase.users[0].pass, function (err, res) {
-    if (err) {
-      return err;
-    }
-    return res;
-  });
+  db.select('email', 'hash').from('login').where('email', '=', req.body.email)
+    .then(data => {
+      isValid = bcrypt.compareSync(req.body.password, data[0].hash);
+      if (isValid) {
+        return db.select('*').from('users')
+          .where('email', '=', req.body.email)
+          .then(data => {
+            res.json(data[0]);
+          })
+          .catch(err => status(400).json(`user with email ${req.body.email} is not exist`));
+      } else {
+        res.status(400).json('wrong credentials');
+      }
+    })
+    .catch(err => res.status(400).json('wrong credentials'));
 
-  if (req.body.email === dataBase.users[0].email &&
-    req.body.password === dataBase.users[0].password
-    //isValidPass
-  ) {
-    res.json(dataBase.users[0]);
-  } else {
-    res.status(400).json('error logging in');
-  }
 });
 
 app.post('/register', (req, res) => {

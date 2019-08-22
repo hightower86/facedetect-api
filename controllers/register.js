@@ -1,4 +1,4 @@
-const handleRegister = (db, bcrypt, req, res) => {
+const handleRegister = (req, res, db, bcrypt) => {
 
   const {
     name,

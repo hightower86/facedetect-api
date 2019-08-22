@@ -1,4 +1,4 @@
-const handleImagePut = (db, req, res) => {
+const handleImagePut = (req, res, db) => {
   const {
     id
   } = req.body;

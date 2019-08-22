@@ -28,13 +28,13 @@ app.get('/', (req, res) => {
   res.json('what are you looking for?');
 });
 
-app.post('/signin', (req, res) => handleSignin(db, bcrypt, req, res));
+app.post('/signin', handleSignin(db, bcrypt));
 
-app.post('/register', (req, res) => handleRegister(db, bcrypt, req, res));
+app.post('/register', (req, res) => handleRegister(req, res, db, bcrypt));
 
-app.get('/profile/:id', (req, res) => handleProfileGet(db, req, res));
+app.get('/profile/:id', (req, res) => handleProfileGet(req, res, db));
 
-app.put('/image', (req, res) => handleImagePut(db, req, res));
+app.put('/image', (req, res) => handleImagePut(req, res, db));
 
 app.listen(3000, () => {
   console.log('app is running on port 3000');

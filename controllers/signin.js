@@ -1,4 +1,4 @@
-const handleSignin = (db, bcrypt, req, res) => {
+const handleSignin = (db, bcrypt) => (req, res) => {
   db.select('email', 'hash').from('login').where('email', '=', req.body.email)
     .then(data => {
       isValid = bcrypt.compareSync(req.body.password, data[0].hash);

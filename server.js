@@ -12,6 +12,7 @@ const {
   handleApiCall
 } = require('./controllers/image');
 
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 app.use(cors());
@@ -40,6 +41,6 @@ app.get('/profile/:id', (req, res) => handleProfileGet(req, res, db));
 app.put('/image', (req, res) => handleImagePut(req, res, db));
 app.post('/imageurl', (req, res) => handleApiCall(req, res));
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log('app is running on port 3000');
 });

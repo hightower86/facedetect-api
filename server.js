@@ -21,10 +21,8 @@ app.use(bodyParser.json());
 const db = knex({
   client: 'pg',
   connection: {
-    host: '127.0.0.1',
-    user: 'macbook',
-    password: '',
-    database: 'smart-brain'
+    connectionString: process.env.DATABASE_URL,
+    ssl: true
   }
 });
 
@@ -33,11 +31,8 @@ app.get('/', (req, res) => {
 });
 
 app.post('/signin', handleSignin(db, bcrypt));
-
 app.post('/register', (req, res) => handleRegister(req, res, db, bcrypt));
-
 app.get('/profile/:id', (req, res) => handleProfileGet(req, res, db));
-
 app.put('/image', (req, res) => handleImagePut(req, res, db));
 app.post('/imageurl', (req, res) => handleApiCall(req, res));
 
